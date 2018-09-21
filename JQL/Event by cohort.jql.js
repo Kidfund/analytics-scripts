@@ -5,6 +5,13 @@ function main() {
     var activeEmails = [
         "tim@kidfund.us",
     ];
+    
+    var queryEventNames = [
+        "Invite Sent",
+        "Tell Friend Sent",
+        // "Invite Opened",
+        // "Tell Friend Opened",
+    ];
 
     return join(
         Events({
@@ -28,16 +35,12 @@ function main() {
                 );
         })
         .groupByUser(function (state, tuples) {
-            var inviteEvent = tuples.find(function (tuple) {
-                var event = tuple.event;
-                return (
-                    event.name == "Invite Sent"
-                    || event.name == "Tell Friend Sent"
-                    //|| event.name == "Invite Opened"
-                    //|| event.name == "Tell Friend Opened"
-                );
+            var firstQueryEvent = tuples.find(function (tuple) {
+                var eventName = tuple.event.name;
+                return eventName &&
+                    queryEventNames.includes(eventName);
             });
-            return inviteEvent !== undefined;
+            return firstQueryEvent !== undefined;
         })
         .groupBy(["value"], mixpanel.reducer.count());
 }
